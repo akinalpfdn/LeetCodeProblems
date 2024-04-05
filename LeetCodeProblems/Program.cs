@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.SymbolStore;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,8 +16,8 @@ namespace LeetCodeProblems
             // Reverse(2147483647);
             //LengthOfLastWord("   fly me   to   the moon  ");
             //IsPalindrome(-121);
-             //MaxArea(new int[] { 1, 8, 6, 2, 5, 4, 8, 3, 7 });
-             MaxArea(new int[] { 2, 3, 4, 5, 18, 17, 6 });
+            //MaxArea(new int[] { 1, 8, 6, 2, 5, 4, 8, 3, 7 });
+            //MaxArea(new int[] { 2, 3, 4, 5, 18, 17, 6 });
             // IsIsomorphic("badc", "baba");
             /* Insert(new int[][] { 
                  new int[] { 1, 3 },
@@ -24,31 +25,129 @@ namespace LeetCodeProblems
                  new int[] { 9, 9 },
              }, new int[] { 7, 8 });
             */
+            Candy(new int[] {0 });
         }
-
-        public void deneme()
+        public int MinSteps(int n)
         {
-            webControls dropDown = new webControls();
-            EbaControls detailsGrid = new EbaControls();
-            webControls dropDown2 = new webControls();
-            EbaControls detailsGrid2 = new EbaControls();
-            webControls dropDown3 = new webControls();
-            EbaControls detailsGrid3 = new EbaControls();
-            webControls dropDown4 = new webControls();
-            EbaControls detailsGrid4 = new EbaControls();
-            List<Controls> list= new List<Controls>() { detailsGrid,detailsGrid2,detailsGrid3,dropDown,dropDown2};
-            foreach(var item in list)
-            {
-                var name =item.Name;
-               ( (EbaControls)item).enabled = true;
-            }
-            Controls control = new Controls();
-            Controls wb = new webControls();
-            var vs =((webControls)wb).visible;
 
-            dropDown.getId();
+            int count = 0;
+            while (n % 2 == 0) { count = count + 2; n /= 2; }
+            for (int i = 3; i <= Math.Sqrt(n); i += 2)
+            {
+                while (n % i == 0)
+                { count += i; n /= i; }
+            }
+            if (n > 2)
+                count += n;
+            return count;
+        }
+        public string MakeGood(string s)
+        {
+            return removeBad(s);
+        }
+        public string removeBad(string s)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (i != s.Length - 1)
+                {
+                    if (s[i].ToString().ToLower() == s[i + 1].ToString().ToLower() && s[i] != s[i + 1])
+                    {
+                        i++;
+                        continue;
+                    }
+                }
+                sb.Append(s[i]);
+            }
+            if (sb.Length > s.Length)
+                return sb.ToString();
+            else
+               return removeBad(sb.ToString());
+        }
+        public static int Candy(int[] ratings)
+        {
+            List<CandyInfo> candies = new List<CandyInfo>();
+            //we need to keep track of candies per rating.
+            foreach(int r in ratings)
+            {
+                candies.Add(new CandyInfo(r));
+            }
+            int index = 0;
+            int totalCandy = 0;
+            while (index < ratings.Length)
+            {
+                   CalculateCandies(ref index, candies);
+                
+            }
+            foreach(CandyInfo candy in candies)
+            {
+                totalCandy += candy.candy;
+            }
+            return totalCandy;
+        }
+        // this is a recursive method that goes to the smallest rating to the right and start with it
+        public static int CalculateCandies(ref int index, List<CandyInfo> candies)
+        {
+            if(index<candies.Count-1) {
+                if (candies[index].num > candies[index + 1].num)
+                {
+                    int currentIndex = index;
+                    index++;
+                        int candy = CalculateCandies(ref index, candies) + 1;
+                    if(currentIndex != 0 || currentIndex ==index-1)// if its left most element, we need to check if its bigger than last loop or not
+                    {
+                        candies[currentIndex].candy = candies[currentIndex].num<= candies[currentIndex - 1].num ? candy : candy> candies[currentIndex - 1].candy+1 ? candy : candies[currentIndex - 1].candy + 1;
+                        return candy;
+                    }
+                    else
+                    {
+                        candies[currentIndex].candy = candy;
+                        return candy;
+                    }
+                }
+                else if(index==0)
+                {
+                    candies[index].candy = 1;
+                    index++;
+                    return 1;
+                }   
+                else
+                {
+                    candies[index].candy = candies[index].num <= candies[index - 1].num ? 1 : candies[index - 1].candy + 1;
+                    index++;
+                    return 1;
+                }
+
+            }
+            //one element case like [0]
+            else if(index==0)
+            {
+                candies[index].candy = 1;
+            }
+            //if its end of the array and left one is smaller we need to add one to it otherwise its just 1
+            else if (candies[index].num > candies[index - 1].num) {
+                candies[index].candy = candies[index - 1].candy + 1;
+            }
+            else
+            {
+                candies[index].candy = 1;
+            }
+            index++;
+            return 1;
         }
 
+
+        public class CandyInfo
+        {
+            public int num { get; set; }
+            public int candy { get; set; }
+
+            public CandyInfo(int num)
+            {
+                this.num = num;
+            }
+        }
         public static int MaxArea(int[] height)
         {
             int maxArea = 0;
